@@ -44,13 +44,13 @@ public class Numbers {
         for (int i = 0; i < n; i++) {
             numbers[i] = scanner.nextInt();
         }
-
+        scanner.close();
         int evenCount = countEvenNumbers(numbers);
         int numbersWithEqualEvenOddDigits = countNumbersWithEqualEvenOddDigits(numbers);
 
         System.out.println("Number of even numbers: " + evenCount);
         System.out.println("Number of numbers with equal even and odd digits: " + numbersWithEqualEvenOddDigits);
 
-        scanner.close();
+
     }
 }

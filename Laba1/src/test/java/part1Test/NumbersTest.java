@@ -11,18 +11,18 @@ public class NumbersTest {
     @Test
     public void testCountEvenNumbers() {
         int[] numbers = {1, 2, 3, 4, 5, 6};
-        assertEquals(3, EvenNumbers.countEvenNumbers(numbers));
+        assertEquals(3, Numbers.countEvenNumbers(numbers));
     }
 
     @Test
     public void testHasEqualEvenOddDigits() {
-        assertTrue(EvenNumbers.hasEqualEvenOddDigits(246));
-        assertFalse(EvenNumbers.hasEqualEvenOddDigits(2468));
+        assertTrue(Numbers.hasEqualEvenOddDigits(23));
+        assertFalse(Numbers.hasEqualEvenOddDigits(2468));
     }
 
     @Test
     public void testCountNumbersWithEqualEvenOddDigits() {
-        int[] numbers = {12, 24, 36, 123, 246, 135, 2468};
-        assertEquals(3, EvenNumbers.countNumbersWithEqualEvenOddDigits(numbers));
+        int[] numbers = {12, 24, 36, 122, 246, 134, 2158};
+        assertEquals(3, Numbers.countNumbersWithEqualEvenOddDigits(numbers));
     }
 }
