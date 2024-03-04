@@ -1,7 +1,8 @@
 package part1;
 import java.util.Scanner;
+
 public class Numbers {
-    public static int countEvenNumbers(int[] numbers) {
+    public int countEvenNumbers(int[] numbers) {
         int count = 0;
         for (int num : numbers) {
             if (num % 2 == 0) {
@@ -11,7 +12,7 @@ public class Numbers {
         return count;
     }
 
-    public static boolean hasEqualEvenOddDigits(int number) {
+    public boolean hasEqualEvenOddDigits(int number) {
         int evenCount = 0, oddCount = 0;
         while (number != 0) {
             int digit = number % 10;
@@ -25,7 +26,7 @@ public class Numbers {
         return evenCount == oddCount;
     }
 
-    public static int countNumbersWithEqualEvenOddDigits(int[] numbers) {
+    public int countNumbersWithEqualEvenOddDigits(int[] numbers) {
         int count = 0;
         for (int num : numbers) {
             if (hasEqualEvenOddDigits(num)) {
@@ -35,7 +36,7 @@ public class Numbers {
         return count;
     }
 
-    public static void main(String[] args) {
+    public void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the number of elements: ");
         int n = scanner.nextInt();
@@ -45,12 +46,12 @@ public class Numbers {
             numbers[i] = scanner.nextInt();
         }
         scanner.close();
-        int evenCount = countEvenNumbers(numbers);
-        int numbersWithEqualEvenOddDigits = countNumbersWithEqualEvenOddDigits(numbers);
+
+        Numbers numbersObj = new Numbers();
+        int evenCount = numbersObj.countEvenNumbers(numbers);
+        int numbersWithEqualEvenOddDigits = numbersObj.countNumbersWithEqualEvenOddDigits(numbers);
 
         System.out.println("Number of even numbers: " + evenCount);
         System.out.println("Number of numbers with equal even and odd digits: " + numbersWithEqualEvenOddDigits);
-
-
     }
 }
