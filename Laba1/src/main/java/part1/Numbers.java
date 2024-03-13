@@ -45,8 +45,6 @@ public class Numbers {
         for (int i = 0; i < n; i++) {
             numbers[i] = scanner.nextInt();
         }
-        scanner.close();
-
         Numbers numbersObj = new Numbers();
         int evenCount = numbersObj.countEvenNumbers(numbers);
         int numbersWithEqualEvenOddDigits = numbersObj.countNumbersWithEqualEvenOddDigits(numbers);
