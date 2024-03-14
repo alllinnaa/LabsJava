@@ -21,10 +21,10 @@ public class PointTest {
 
     @Test
     public void testIntersects() {
-        Point point1 = new Point(0, 0);
-        Point point2 = new Point(1, 1);
-        point1.move(3, 3);
-        point2.move(4, 4);
+        Point point1 = new Point(-5, 0);
+        Point point2 = new Point(-3, 5);
+        point1.move(0, 4);
+        point2.move(2, 0);
         assertTrue(point1.intersects(point2));
     }
 }

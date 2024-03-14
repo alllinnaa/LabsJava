@@ -1,5 +1,4 @@
 package part2;
-import java.util.Objects;
 
 public class Point {
     private final int x;
@@ -41,24 +40,21 @@ public class Point {
         if (!hasMoved() || !other.hasMoved()) {
             throw new IllegalStateException("Both points must have moved to check for intersection.");
         }
-        // For simplicity, assuming the points move linearly between their creation and move times
-        // Check if the lines formed by the points intersect
-        double slope1 = (moveY - y) / (double)(moveTime - creationTime);
-        double slope2 = (other.moveY - other.y) / (double)(other.moveTime - other.creationTime);
+
+        double slope1 = (moveY - y) / (double)(moveX - x);
+        double slope2 = (other.moveY - other.y) / (double)(other.moveX - other.x);
+
         if (slope1 == slope2) {
             // Parallel lines, no intersection
             return false;
         }
-        // Calculate intersection point
-        double intersectionX = (other.y - y + slope1 * creationTime - slope2 * other.creationTime) / (slope1 - slope2);
-        double intersectionY = slope1 * (intersectionX - creationTime) + y;
-        // Check if intersection point lies on both line segments
-        return isBetween(creationTime, moveTime, intersectionX)
-                && isBetween(other.creationTime, other.moveTime, intersectionY);
+        return true;
     }
 
-    private boolean isBetween(long start, long end, double value) {
-        return value >= start && value <= end;
+    public double distance(Point other) {
+        int dx = other.x - this.x;
+        int dy = other.y - this.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     public int getX() {
@@ -84,29 +80,9 @@ public class Point {
     public long getMoveTime() {
         return moveTime;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Point point = (Point) o;
-        return x == point.x && y == point.y && creationTime == point.creationTime && moveX == point.moveX && moveY == point.moveY && moveTime == point.moveTime;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y, creationTime, moveX, moveY, moveTime);
-    }
-
     @Override
     public String toString() {
-        return "Point{" +
-                "x=" + x +
-                ", y=" + y +
-                ", creationTime=" + creationTime +
-                ", moveX=" + moveX +
-                ", moveY=" + moveY +
-                ", moveTime=" + moveTime +
-                '}';
+        return "(" + x + ", " + y + ")";
     }
+
 }
