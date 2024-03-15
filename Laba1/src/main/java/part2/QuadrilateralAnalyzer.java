@@ -2,6 +2,7 @@ package part2;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class QuadrilateralAnalyzer {
     private List<Quadrilateral> quadrilaterals;
 
@@ -24,7 +25,7 @@ public class QuadrilateralAnalyzer {
                 count++;
             }
         }
-        return count
+        return count;
     }
 
     public int countRectangles() {
@@ -101,5 +102,17 @@ public class QuadrilateralAnalyzer {
             }
         }
         return smallest;
+    }
+
+    public String getType(Quadrilateral quad) {
+        if (quad.isSquare()) {
+            return "Square";
+        } else if (quad.isRectangle()) {
+            return "Rectangle";
+        } else if (quad.isRhombus()) {
+            return "Rhombus";
+        } else {
+            return "Arbitrary";
+        }
     }
 }

@@ -3,37 +3,37 @@ package part2;
 public class Point {
     private final int x;
     private final int y;
-    private final long creationTime;
+    private final long creationTimeSeconds;
     private int moveX;
     private int moveY;
-    private long moveTime;
+    private long moveTimeSeconds;
 
     public Point(int x, int y) {
         this.x = x;
         this.y = y;
-        this.creationTime = System.currentTimeMillis();
+        this.creationTimeSeconds = System.currentTimeMillis() / 1000;
         this.moveX = x;
         this.moveY = y;
-        this.moveTime = creationTime;
+        this.moveTimeSeconds = creationTimeSeconds;
     }
 
     public void move(int newX, int newY) {
         this.moveX = newX;
         this.moveY = newY;
-        this.moveTime = System.currentTimeMillis();
+        this.moveTimeSeconds = System.currentTimeMillis() / 1000;
     }
 
     public boolean hasMoved() {
-        return !(x == moveX && y == moveY && creationTime == moveTime);
+        return !(x == moveX && y == moveY && creationTimeSeconds == moveTimeSeconds);
     }
 
     public double getSpeed() {
         if (!hasMoved()) {
             throw new IllegalStateException("Point has not moved.");
         }
-        long timeDifference = moveTime - creationTime;
+        long timeDifferenceSeconds = moveTimeSeconds - creationTimeSeconds;
         double distance = Math.sqrt(Math.pow(moveX - x, 2) + Math.pow(moveY - y, 2));
-        return distance / timeDifference;
+        return distance / timeDifferenceSeconds;
     }
 
     public boolean intersects(Point other) {
@@ -65,8 +65,8 @@ public class Point {
         return y;
     }
 
-    public long getCreationTime() {
-        return creationTime;
+    public long getCreationTimeSeconds() {
+        return creationTimeSeconds;
     }
 
     public int getMoveX() {
@@ -77,9 +77,10 @@ public class Point {
         return moveY;
     }
 
-    public long getMoveTime() {
-        return moveTime;
+    public long getMoveTimeSeconds() {
+        return moveTimeSeconds;
     }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";

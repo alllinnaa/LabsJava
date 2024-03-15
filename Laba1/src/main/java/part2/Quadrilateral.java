@@ -40,7 +40,11 @@ public class Quadrilateral {
         double side2 = point2.distance(point3);
         double side3 = point3.distance(point4);
         double side4 = point4.distance(point1);
-        return side1 == side2 && side2 == side3 && side3 == side4;
+
+        double diagonal1 = point1.distance(point3);
+        double diagonal2 = point2.distance(point4);
+
+        return (side1 == side2 && side2 == side3 && side3 == side4) && diagonal1 == diagonal2;
     }
 
     public boolean isRectangle() {
@@ -53,7 +57,7 @@ public class Quadrilateral {
         double diagonal1 = point1.distance(point3);
         double diagonal2 = point2.distance(point4);
 
-        return (side1 == side3 && side2 == side4) || (side1 == side2 && side3 == side4)
+        return ((side1 == side3 && side2 == side4) || (side1 == side2 && side3 == side4))
                 && diagonal1 == diagonal2;
     }
 
@@ -63,7 +67,11 @@ public class Quadrilateral {
         double side2 = point2.distance(point3);
         double side3 = point3.distance(point4);
         double side4 = point4.distance(point1);
-        return side1 == side3 && side2 == side4;
+
+        double diagonal1 = point1.distance(point3);
+        double diagonal2 = point2.distance(point4);
+
+        return ((side1 == side3 && side2 == side4) || (side1 == side2 && side3 == side4)) && diagonal1 != diagonal2;
     }
 
     @Override
@@ -75,6 +83,5 @@ public class Quadrilateral {
                 ", point4=" + point4 +
                 '}';
     }
-
 
 }
