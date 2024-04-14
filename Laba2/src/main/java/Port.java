@@ -17,14 +17,14 @@ public class Port {
 
     public synchronized Berth getFreeBerth() {
         for (Berth berth : berths) {
-            if (berth.getShip() == null) {
+            if (!berth.isOccupied()) {
                 return berth;
             }
         }
         return null;
     }
 
-    public synchronized void loadContainers(int amount) {
+    public synchronized void loadContainers(int amount, Ship ship) {
         while (containers + amount > capacity) {
             try {
                 wait();
@@ -33,11 +33,11 @@ public class Port {
             }
         }
         containers += amount;
-        System.out.println(amount + " containers loaded. Total containers in port: " + containers);
+        System.out.println(amount + " containers loaded from " + ship.getShipName() + ". Total containers in port: " + containers);
         notifyAll();
     }
 
-    public synchronized void unloadContainers(int amount) {
+    public synchronized void unloadContainers(int amount, Ship ship) {
         while (containers - amount < 0) {
             try {
                 wait();
@@ -46,16 +46,11 @@ public class Port {
             }
         }
         containers -= amount;
-        System.out.println(amount + " containers unloaded. Total containers in port: " + containers);
+        System.out.println(amount + " containers unloaded to " + ship.getShipName() + ". Total containers in port: " + containers);
         notifyAll();
     }
 
     public synchronized int getContainers() {
         return containers;
-    }
-
-    public synchronized void releaseBerth(Berth berth) {
-        System.out.println("Berth released.");
-        notifyAll();
     }
 }

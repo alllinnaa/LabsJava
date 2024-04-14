@@ -15,12 +15,24 @@ public class Berth {
     }
 
     public synchronized void unloadShip() {
+        while (this.ship == null) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         System.out.println(ship.getShipName() + " unloaded. Departing from the berth.");
         this.ship = null;
         notifyAll();
     }
 
-    public synchronized Ship getShip() {
+    public synchronized boolean isOccupied() {
+        return ship != null;
+    }
+
+
+    public Ship getShip() {
         return ship;
     }
 }

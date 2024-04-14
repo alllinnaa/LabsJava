@@ -1,5 +1,3 @@
-import java.util.Random;
-
 public class Ship extends Thread {
     private String name;
     private int capacity;
@@ -27,38 +25,54 @@ public class Ship extends Thread {
 
     @Override
     public void run() {
-        long startTime = System.currentTimeMillis(); // Record the start time of ship's arrival
+        long startTime = System.currentTimeMillis();
+
+            Berth freeBerth = port.getFreeBerth();
+            while (freeBerth == null) {
+                System.out.println(name + " is waiting for a free berth.");
+                try {
+                    port.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            freeBerth.dockShip(this);
+
+
 
         while (totalTimeInPort > 0) {
             int action = (int) (Math.random() * 2);
             int amount = (int) (Math.random() * 5) + 1;
 
-            if (action == 0) {
-                port.loadContainers(amount);
-                containers += amount;
-            } else {
-                port.unloadContainers(amount);
-                containers -= amount;
+            synchronized (port) {
+                if (action == 0) {
+                    port.loadContainers(amount, this);
+                    containers += amount;
+                } else {
+                    port.unloadContainers(amount, this);
+                    containers -= amount;
+                }
             }
 
             try {
-                Thread.sleep(2000); // Simulate time spent on loading/unloading
-                totalTimeInPort -= 2; // Decrement time in port
+                Thread.sleep(2000);
+                totalTimeInPort -= 2;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            // Check if ship has spent more time than totalTimeInPort
             if (System.currentTimeMillis() - startTime > totalTimeInPort * 1000) {
                 System.out.println(name + " has exceeded its total time in port and is leaving.");
                 break;
             }
         }
 
-        System.out.println(name + " has left the port.");
-        if (berth != null) {
-            berth.unloadShip();
-            port.releaseBerth(berth); // Release berth when ship leaves
-        }
+
+            System.out.println(name + " has left the port.");
+            if (berth != null) {
+                berth.unloadShip();
+            }
+
     }
 }
