@@ -10,12 +10,17 @@ public class Berth {
             }
         }
         this.ship = ship;
-        System.out.println(ship.getName() + " docked at the berth.");
+        System.out.println(ship.getShipName() + " docked at the berth.");
+        notifyAll();
     }
 
-    public synchronized void undockShip() {
-        System.out.println(ship.getName() + " undocked from the berth.");
+    public synchronized void unloadShip() {
+        System.out.println(ship.getShipName() + " unloaded. Departing from the berth.");
         this.ship = null;
         notifyAll();
+    }
+
+    public synchronized Ship getShip() {
+        return ship;
     }
 }
