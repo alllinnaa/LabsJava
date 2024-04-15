@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
     public class Main {
         public static void main(String[] args) {
-            Port port = new Port(100, 5);
+            Port port = new Port(100, 5, 10);
             List<Ship> ships = new ArrayList<>();
             ships.add(new Ship("Ship1", 10, port, 20));
             ships.add(new Ship("Ship2", 15, port, 16));

@@ -6,15 +6,14 @@ public class Port {
     private int containers;
     private List<Berth> berths;
 
-    public Port(int capacity, int numberOfBerths) {
+    public Port(int capacity, int numberOfBerths, int initialContainers) {
         this.capacity = capacity;
-        this.containers = 0;
+        this.containers = Math.min(initialContainers, capacity);
         this.berths = new ArrayList<>(numberOfBerths);
         for (int i = 0; i < numberOfBerths; i++) {
             berths.add(new Berth());
         }
     }
-
     public synchronized Berth getFreeBerth() {
         for (Berth berth : berths) {
             if (!berth.isOccupied()) {
