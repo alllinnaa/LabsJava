@@ -6,11 +6,15 @@ public class Ship extends Thread {
     private Berth berth;
     private int totalTimeInPort;
 
-    public Ship(String name, int capacity, Port port, int totalTimeInPort) {
+    public Ship(String name, int capacity, Port port, int totalTimeInPort, int initialContainers) {
+        if (capacity <= 0 || totalTimeInPort <= 0 || initialContainers < 0) {
+            throw new IllegalArgumentException("Capacity, total time in port, and initial containers must be non-negative values.");
+        }
+
         this.name = name;
         this.capacity = capacity;
         this.port = port;
-        this.containers = 0;
+        this.containers = Math.min(initialContainers, capacity);
         this.berth = null;
         this.totalTimeInPort = totalTimeInPort;
     }
@@ -45,18 +49,18 @@ public class Ship extends Thread {
 
             synchronized (port) {
                 if (action == 0) {
-                    if (containers >= amount) {
-                        port.unloadContainers(amount, this);
-                        containers -= amount;
-                    } else {
-                        System.out.println(name + " cannot unload " + amount + " containers. Ship does not have enough containers.");
-                    }
-                } else {
                     if (containers + amount <= capacity) {
-                        port.loadContainers(amount, this);
+                        port.unloadContainers(amount, this);
                         containers += amount;
                     } else {
                         System.out.println(name + " cannot load " + amount + " containers. Ship's capacity is exceeded.");
+                    }
+                } else {
+                    if (containers >= amount) {
+                        port.loadContainers(amount, this);
+                        containers -= amount;
+                    } else {
+                        System.out.println(name + " cannot unload " + amount + " containers. Ship does not have enough containers.");
                     }
                 }
             }
