@@ -57,12 +57,12 @@ public class Main extends Application {
                 }
                 break;
             case "cos(x)":
-                for (double x = -10; x <= 10; x += 0.1) {
+                for (double x = -20; x <= 20; x += 0.1) {
                     series.getData().add(new XYChart.Data<>(x, Math.cos(x)));
                 }
                 break;
             case "x^2":
-                for (double x = -10; x <= 10; x += 0.1) {
+                for (double x = -20; x <= 20; x += 0.1) {
                     series.getData().add(new XYChart.Data<>(x, x * x));
                 }
                 break;
@@ -72,11 +72,17 @@ public class Main extends Application {
 
         chart.getData().clear();
         chart.getData().add(series);
+
+        // Set the node to null to display only the line without data points
+        for (XYChart.Data<Number, Number> data : series.getData()) {
+            data.getNode().setVisible(false);
+        }
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+
 
 
