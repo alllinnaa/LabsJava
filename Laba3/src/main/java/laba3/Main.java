@@ -21,6 +21,7 @@ public class Main extends Application {
         // Creating the line chart
         LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("Function Plotter");
+        lineChart.setPrefSize(900, 700); // Set the size of the chart
 
         // Creating the choice box for function selection
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
@@ -36,7 +37,7 @@ public class Main extends Application {
         // Adding components to the scene
         Group root = new Group();
         root.getChildren().addAll(lineChart, choiceBox);
-        Scene scene = new Scene(root, 600, 400);
+        Scene scene = new Scene(root, 1000, 800); // Set the size of the scene
 
         stage.setScene(scene);
         stage.setTitle("Function Plotter");
@@ -51,7 +52,7 @@ public class Main extends Application {
         // Generate data points based on the selected function
         switch (functionName) {
             case "sin(x)":
-                for (double x = -10; x <= 10; x += 0.1) {
+                for (double x = -20; x <= 20; x += 0.1) {
                     series.getData().add(new XYChart.Data<>(x, Math.sin(x)));
                 }
                 break;
@@ -77,4 +78,5 @@ public class Main extends Application {
         launch(args);
     }
 }
+
 
