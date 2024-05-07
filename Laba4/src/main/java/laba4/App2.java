@@ -3,9 +3,7 @@ package laba4;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
@@ -17,6 +15,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class App2 extends Application {
     private boolean running = true;
@@ -68,21 +68,30 @@ public class App2 extends Application {
                         DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
                         while (running) {
-                            // Read data set and value
-                            int dataSet = inputStream.readInt();
-                            int value = inputStream.readInt();
+                            try {
+                                // Read data set and value
+                                int dataSet = inputStream.readInt();
+                                int value = inputStream.readInt();
 
-                            // Add value to corresponding list
-                            if (dataSet == 1) {
-                                dataSet1.add(value);
-                                System.out.println("1: " + value);
-                            } else if (dataSet == 2) {
-                                dataSet2.add(value);
-                                System.out.println("2: " + value);
+                                // Add value to corresponding list
+                                if (dataSet == 1) {
+                                    dataSet1.add(value);
+                                    System.out.println("1: " + value);
+                                } else if (dataSet == 2) {
+                                    dataSet2.add(value);
+                                    System.out.println("2: " + value);
+                                }
+
+                                // Update UI on JavaFX application thread
+                                Platform.runLater(this::refreshListView);
+                            } catch (IOException e) {
+                                // Handle EOFException and break out of the loop
+                                if (e instanceof java.io.EOFException) {
+                                    break;
+                                } else {
+                                    e.printStackTrace();
+                                }
                             }
-
-                            // Update UI on JavaFX application thread
-                            Platform.runLater(this::refreshListView);
                         }
 
                         socket.close();
@@ -120,45 +129,59 @@ public class App2 extends Application {
         }
     }
 
+
     private void displayGraphs() {
         // Create new stage for graphs
         Stage stage = new Stage();
-        stage.setTitle("Graphs");
+        stage.setTitle("Histograms");
 
-        // Create line charts for each dataset
-        NumberAxis xAxis1 = new NumberAxis();
+        // Create bar charts for each dataset
+        CategoryAxis xAxis1 = new CategoryAxis();
+        xAxis1.setLabel("Value");
         NumberAxis yAxis1 = new NumberAxis();
-        LineChart<Number, Number> lineChart1 = new LineChart<>(xAxis1, yAxis1);
-        lineChart1.setTitle("Dataset 1");
+        yAxis1.setLabel("Frequency");
+        BarChart<String, Number> barChart1 = new BarChart<>(xAxis1, yAxis1);
+        barChart1.setTitle("Dataset 1");
 
-        NumberAxis xAxis2 = new NumberAxis();
+        CategoryAxis xAxis2 = new CategoryAxis();
+        xAxis2.setLabel("Value");
         NumberAxis yAxis2 = new NumberAxis();
-        LineChart<Number, Number> lineChart2 = new LineChart<>(xAxis2, yAxis2);
-        lineChart2.setTitle("Dataset 2");
+        yAxis2.setLabel("Frequency");
+        BarChart<String, Number> barChart2 = new BarChart<>(xAxis2, yAxis2);
+        barChart2.setTitle("Dataset 2");
 
         // Create data series for each dataset
-        XYChart.Series<Number, Number> series1 = new XYChart.Series<>();
-        XYChart.Series<Number, Number> series2 = new XYChart.Series<>();
+        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
+        XYChart.Series<String, Number> series2 = new XYChart.Series<>();
+
+        // Calculate frequency maps for each dataset
+        Map<Integer, Long> frequencyMap1 = dataSet1.stream()
+                .collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
+
+        Map<Integer, Long> frequencyMap2 = dataSet2.stream()
+                .collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
 
         // Add data to series
-        for (int i = 0; i < dataSet1.size(); i++) {
-            series1.getData().add(new XYChart.Data<>(i, dataSet1.get(i)));
+        for (Map.Entry<Integer, Long> entry : frequencyMap1.entrySet()) {
+            series1.getData().add(new XYChart.Data<>(entry.getKey().toString(), entry.getValue()));
         }
-        for (int i = 0; i < dataSet2.size(); i++) {
-            series2.getData().add(new XYChart.Data<>(i, dataSet2.get(i)));
+
+        for (Map.Entry<Integer, Long> entry : frequencyMap2.entrySet()) {
+            series2.getData().add(new XYChart.Data<>(entry.getKey().toString(), entry.getValue()));
         }
 
         // Add series to charts
-        lineChart1.getData().add(series1);
-        lineChart2.getData().add(series2);
+        barChart1.getData().add(series1);
+        barChart2.getData().add(series2);
 
         // Create VBox to hold charts
-        VBox vbox = new VBox(lineChart1, lineChart2);
+        VBox vbox = new VBox(barChart1, barChart2);
 
         // Show the stage
         stage.setScene(new Scene(vbox, 900, 600));
         stage.show();
     }
+
 
     public static void main(String[] args) {
         launch(args);
