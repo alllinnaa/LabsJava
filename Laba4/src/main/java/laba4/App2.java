@@ -20,8 +20,8 @@ import java.util.List;
 
 public class App2 extends Application {
     private boolean running = true;
-    private List<Integer> dataSet1 = new ArrayList<>();
-    private List<Integer> dataSet2 = new ArrayList<>();
+    private final List<Integer> dataSet1 = new ArrayList<>();
+    private final List<Integer> dataSet2 = new ArrayList<>();
     private ListView<Integer> listView1;
     private ListView<Integer> listView2;
 
@@ -57,32 +57,41 @@ public class App2 extends Application {
             // Create server socket on port 9993
             ServerSocket serverSocket = new ServerSocket(9993);
 
-            // Listen for incoming connections
-            Socket socket = serverSocket.accept();
             while (running) {
+                // Listen for incoming connections
+                Socket socket = serverSocket.accept();
 
+                // Start a new thread to handle the connection
+                new Thread(() -> {
+                    try {
+                        // Create DataInputStream to read data
+                        DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
-                // Create DataInputStream to read data
-                DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+                        while (running) {
+                            // Read data set and value
+                            int dataSet = inputStream.readInt();
+                            int value = inputStream.readInt();
 
-                // Read data set and value
-                int dataSet = inputStream.readInt();
-                int value = inputStream.readInt();
+                            // Add value to corresponding list
+                            if (dataSet == 1) {
+                                dataSet1.add(value);
+                                System.out.println("1: " + value);
+                            } else if (dataSet == 2) {
+                                dataSet2.add(value);
+                                System.out.println("2: " + value);
+                            }
 
-                // Add value to corresponding list
-                if (dataSet == 1) {
-                    dataSet1.add(value);
-                    System.out.println("1: "+value);
-                } else if (dataSet == 2) {
-                    dataSet2.add(value);
-                    System.out.println("2: "+value);
-                }
+                            // Update UI on JavaFX application thread
+                            Platform.runLater(this::refreshListView);
+                        }
 
-                // Update UI on JavaFX application thread
-                Platform.runLater(this::refreshListView);
-
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
             }
-            socket.close();
+
             serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();

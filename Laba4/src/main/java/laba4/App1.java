@@ -71,11 +71,11 @@ public class App1 extends Application {
 
     private void sendData(int dataSet) {
         try {
-            // Connect to localhost on port 12345
+            // Connect to localhost on port 9993
             Socket socket = new Socket("127.0.0.1", 9993);
 
-            // Create ObjectOutputStream to send data
-            DataOutputStream outputStream = new  DataOutputStream(socket.getOutputStream());
+            // Create DataOutputStream to send data
+            DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
             // Generate and send random data
             Random random = new Random();
@@ -84,7 +84,7 @@ public class App1 extends Application {
                 outputStream.writeInt(dataSet); // Indicate which data set this belongs to
                 outputStream.writeInt(data); // Send the random data
                 outputStream.flush(); // Flush the stream to ensure data is sent immediately
-                System.out.println(dataSet+": "+data);
+                System.out.println(dataSet + ": " + data);
                 Thread.sleep(100); // Wait for 100 milliseconds
             }
 
