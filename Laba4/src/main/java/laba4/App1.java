@@ -1,6 +1,7 @@
 package laba4;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -13,7 +14,6 @@ import javafx.stage.Stage;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
@@ -21,35 +21,43 @@ import java.util.stream.Collectors;
 
 public class App1 extends Application {
     private boolean running = true;
+    private boolean startGeneration = true;
     private List<Integer> dataSet1 = new ArrayList<>();
     private List<Integer> dataSet2 = new ArrayList<>();
 
     @Override
     public void start(Stage stage) {
-        // Initialize UI elements
+
         Group root = new Group();
         Scene scene = new Scene(root, 400, 200);
 
-        // Create labels to display most frequent numbers
+
         Label thread1Label = new Label();
         Label thread2Label = new Label();
 
-        // Add labels to the scene
+
         VBox vbox = new VBox(10, thread1Label, thread2Label);
         root.getChildren().add(vbox);
 
-        // Handle key combination for starting data transmission
+
         KeyCombination startCombination = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
         scene.setOnKeyPressed(event -> {
             if (startCombination.match(event)) {
-                System.out.println("Control + S was pressed");
-                startDataTransmission();
+                if (startGeneration) {
+                    startDataTransmission();
+                    startGeneration=false;
+                } else {
+                    displayAlert("You have already started the number generator.");
+                }
             } else if (event.getCode() == KeyCode.I && event.isAltDown()) {
-                displayMostFrequentNumbers(thread1Label, thread2Label);
+                if (!running) {
+                    displayMostFrequentNumbers(thread1Label, thread2Label);
+                } else {
+                    displayAlert("Threads were not started or did not complete their work.");
+                }
             }
         });
 
-        // Start listening for stop signal
         startStopSignalListener();
 
         stage.setScene(scene);
@@ -61,8 +69,8 @@ public class App1 extends Application {
         new Thread(() -> {
             try {
                 ServerSocket serverSocket = new ServerSocket(9994); // Listen for stop signal
-                serverSocket.accept(); // Block until signal received
-                running = false; // Stop data transmission
+                serverSocket.accept();
+                running = false;
                 serverSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -71,71 +79,77 @@ public class App1 extends Application {
     }
 
     private void startDataTransmission() {
-        // Create two threads for generating and transmitting random data
-        Thread thread1 = new Thread(() -> sendData(1));
-        Thread thread2 = new Thread(() -> sendData(2));
-
-        thread1.start();
-        thread2.start();
+        try {
+            Socket socket = new Socket("127.0.0.1", 9993);
+            if (socket.isConnected()) {
+                socket.close();
+                // Create threads within the try block to catch any exceptions during thread creation
+                Thread thread1 = new Thread(() -> sendData(1));
+                Thread thread2 = new Thread(() -> sendData(2));
+                thread1.start();
+                thread2.start();
+            } else {
+                displayAlert("The second program has not been started. Please start the second program before proceeding.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            displayAlert("Error connecting to the second program. Please make sure it is running.");
+            Platform.exit();
+        }
     }
 
     private void sendData(int dataSet) {
         try {
-            // Connect to localhost on port 9993
             Socket socket = new Socket("127.0.0.1", 9993);
 
-            // Create DataOutputStream to send data
-            DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
-            // Generate and send random data
-            Random random = new Random();
-            while (running) {
-                int data = random.nextInt(256); // Generate random number between 0 and 255
+                Random random = new Random();
+                while (running) {
+                    int data = random.nextInt(256);
 
-                // Add the generated number to the corresponding data set
-                if (dataSet == 1) {
-                    dataSet1.add(data);
-                } else if (dataSet == 2) {
-                    dataSet2.add(data);
+                    if (dataSet == 1) {
+                        dataSet1.add(data);
+                    } else if (dataSet == 2) {
+                        dataSet2.add(data);
+                    }
+
+                    outputStream.writeInt(dataSet);
+                    outputStream.writeInt(data);
+                    outputStream.flush();
+                    Thread.sleep(100);
                 }
 
-                outputStream.writeInt(dataSet); // Indicate which data set this belongs to
-                outputStream.writeInt(data); // Send the random data
-                outputStream.flush(); // Flush the stream to ensure data is sent immediately
-                System.out.println(dataSet + ": " + data);
-                Thread.sleep(100); // Wait for 100 milliseconds
-            }
+                outputStream.close();
+                socket.close();
 
-            // Close the socket and stream when done
-            outputStream.close();
-            socket.close();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            displayAlert("Error creating socket.");
         }
     }
     private void displayMostFrequentNumbers(Label thread1Label, Label thread2Label) {
-        // Separate the data generated by each thread
+
         List<Integer> thread1Data = new ArrayList<>(dataSet1);
         List<Integer> thread2Data = new ArrayList<>(dataSet2);
 
-        // Calculate frequency of each number for each thread
         Map<Integer, Long> frequencyMapThread1 = thread1Data.stream()
                 .collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
         Map<Integer, Long> frequencyMapThread2 = thread2Data.stream()
                 .collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
 
-        // Sort frequency maps by frequency in descending order
+
         List<Map.Entry<Integer, Long>> sortedEntriesThread1 = new ArrayList<>(frequencyMapThread1.entrySet());
         sortedEntriesThread1.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
         List<Map.Entry<Integer, Long>> sortedEntriesThread2 = new ArrayList<>(frequencyMapThread2.entrySet());
         sortedEntriesThread2.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
-        // Get the three most frequent numbers from each thread
+
         List<Integer> mostFrequentNumbersThread1 = getMostFrequentNumbers(sortedEntriesThread1);
         List<Integer> mostFrequentNumbersThread2 = getMostFrequentNumbers(sortedEntriesThread2);
 
-        // Construct output strings for each thread
+
         StringBuilder thread1Output = new StringBuilder("Most frequent numbers generated by Thread 1: ");
         for (int number : mostFrequentNumbersThread1) {
             thread1Output.append(number).append(", ");
@@ -148,7 +162,6 @@ public class App1 extends Application {
         }
         thread2Output.delete(thread2Output.length() - 2, thread2Output.length()); // Remove the last ", "
 
-        // Update the label texts
         thread1Label.setText(thread1Output.toString());
         thread2Label.setText(thread2Output.toString());
     }
@@ -164,6 +177,13 @@ public class App1 extends Application {
             }
         }
         return mostFrequentNumbers;
+    }
+    private void displayAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Most Frequent Numbers");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 
