@@ -68,7 +68,7 @@ public class App1 extends Application {
     private void startStopSignalListener() {
         new Thread(() -> {
             try {
-                ServerSocket serverSocket = new ServerSocket(9994); // Listen for stop signal
+                ServerSocket serverSocket = new ServerSocket(9994);
                 serverSocket.accept();
                 running = false;
                 serverSocket.close();
@@ -83,7 +83,7 @@ public class App1 extends Application {
             Socket socket = new Socket("127.0.0.1", 9993);
             if (socket.isConnected()) {
                 socket.close();
-                // Create threads within the try block to catch any exceptions during thread creation
+
                 Thread thread1 = new Thread(() -> sendData(1));
                 Thread thread2 = new Thread(() -> sendData(2));
                 thread1.start();
@@ -180,7 +180,7 @@ public class App1 extends Application {
     }
     private void displayAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Most Frequent Numbers");
+        alert.setTitle("App1");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

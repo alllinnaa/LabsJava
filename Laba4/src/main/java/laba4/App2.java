@@ -109,7 +109,7 @@ public class App2 extends Application {
         } catch (IOException e) {
             e.printStackTrace();
             displayAlert("Error while receiving data, you may need to run the first program.");
-
+            Platform.exit();
         }
     }
 
@@ -182,7 +182,7 @@ public class App2 extends Application {
 
     private void displayAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Most Frequent Numbers");
+        alert.setTitle("App2");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
