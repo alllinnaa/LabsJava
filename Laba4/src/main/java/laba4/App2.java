@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -53,7 +54,7 @@ public class App2 extends Application {
         root.getChildren().addAll(listView1, listView2, stopButton);
 
 
-        new Thread(this::receiveData).start();
+        new Thread(()->receiveData()).start();
 
         primaryStage.setScene(scene);
         primaryStage.setTitle("App2");
@@ -62,18 +63,12 @@ public class App2 extends Application {
 
     private void receiveData() {
         try {
-
             ServerSocket serverSocket = new ServerSocket(9993);
 
             while (running) {
-
                 Socket socket = serverSocket.accept();
-
                 new Thread(() -> {
-                    try {
-
-                        DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-
+                    try (DataInputStream inputStream = new DataInputStream(socket.getInputStream())) {
                         while (running) {
                             try {
                                 int dataSet = inputStream.readInt();
@@ -88,30 +83,25 @@ public class App2 extends Application {
                                 }
 
                                 Platform.runLater(this::refreshListView);
-                            } catch (IOException e) {
-
-                                if (e instanceof java.io.EOFException) {
-                                    break;
-                                } else {
-                                    e.printStackTrace();
-                                }
+                            } catch (EOFException eofException) {
+                                break;
+                            } catch (IOException ioException) {
+                                displayAlert("Data reading error");
                             }
                         }
-
-                        socket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException ioException) {
+                        displayAlert("Error receiving data");
                     }
                 }).start();
             }
-
             serverSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
             displayAlert("Error while receiving data, you may need to run the first program.");
             Platform.exit();
         }
     }
+
+
 
 
     private void refreshListView() {
@@ -129,7 +119,6 @@ public class App2 extends Application {
             Socket socket = new Socket("127.0.0.1", 9994);
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
             displayAlert("Error when stopping data generation, you may not be able to start the first program.");
             Platform.exit();
         }

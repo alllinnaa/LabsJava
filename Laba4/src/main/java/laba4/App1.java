@@ -73,7 +73,7 @@ public class App1 extends Application {
                 running = false;
                 serverSocket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                displayAlert("Error in receiving signal about completion of generation");
             }
         }).start();
     }
@@ -83,7 +83,6 @@ public class App1 extends Application {
             Socket socket = new Socket("127.0.0.1", 9993);
             if (socket.isConnected()) {
                 socket.close();
-
                 Thread thread1 = new Thread(() -> sendData(1));
                 Thread thread2 = new Thread(() -> sendData(2));
                 thread1.start();
@@ -92,7 +91,6 @@ public class App1 extends Application {
                 displayAlert("The second program has not been started. Please start the second program before proceeding.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
             displayAlert("Error connecting to the second program. Please make sure it is running.");
             Platform.exit();
         }
@@ -102,29 +100,27 @@ public class App1 extends Application {
         try {
             Socket socket = new Socket("127.0.0.1", 9993);
 
-                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+            DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
-                Random random = new Random();
-                while (running) {
-                    int data = random.nextInt(256);
+            Random random = new Random();
+            while (running) {
+                int data = random.nextInt(256);
 
-                    if (dataSet == 1) {
-                        dataSet1.add(data);
-                    } else if (dataSet == 2) {
-                        dataSet2.add(data);
-                    }
-
-                    outputStream.writeInt(dataSet);
-                    outputStream.writeInt(data);
-                    outputStream.flush();
-                    Thread.sleep(100);
+                if (dataSet == 1) {
+                    dataSet1.add(data);
+                } else if (dataSet == 2) {
+                    dataSet2.add(data);
                 }
+                outputStream.writeInt(dataSet);
+                outputStream.writeInt(data);
+                outputStream.flush();
+                Thread.sleep(100);
+            }
 
-                outputStream.close();
-                socket.close();
+            outputStream.close();
+            socket.close();
 
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
             displayAlert("Error creating socket.");
         }
     }
