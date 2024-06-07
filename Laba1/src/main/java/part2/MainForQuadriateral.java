@@ -22,7 +22,7 @@ public class MainForQuadriateral {
         analyzer.addQuadrilateral(quad7);
         analyzer.addQuadrilateral(quad8);
 
-        // Print information for each quadrilateral
+
         System.out.println("Quadrilateral 1: Type - " + analyzer.getType(quad1) + ", Area: " + quad1.calculateArea() + ", Perimeter: " + quad1.calculatePerimeter());
         System.out.println("Quadrilateral 2: Type - " + analyzer.getType(quad2) + ", Area: " + quad2.calculateArea() + ", Perimeter: " + quad2.calculatePerimeter());
         System.out.println("Quadrilateral 3: Type - " + analyzer.getType(quad3) + ", Area: " + quad3.calculateArea() + ", Perimeter: " + quad3.calculatePerimeter());
@@ -32,20 +32,20 @@ public class MainForQuadriateral {
         System.out.println("Quadrilateral 7: Type - " + analyzer.getType(quad7) + ", Area: " + quad7.calculateArea() + ", Perimeter: " + quad7.calculatePerimeter());
         System.out.println("Quadrilateral 8: Type - " + analyzer.getType(quad8) + ", Area: " + quad8.calculateArea() + ", Perimeter: " + quad8.calculatePerimeter());
 
-        // Print the counts of different types of quadrilaterals
+
         System.out.println("Number of quadrilaterals: " + analyzer.countQuadrilaterals());
         System.out.println("Number of squares: " + analyzer.countSquares());
         System.out.println("Number of rectangles: " + analyzer.countRectangles());
         System.out.println("Number of rhombuses: " + analyzer.countRhombuses());
         System.out.println("Number of arbitrary quadrilaterals: " + analyzer.countArbitraryQuadrilaterals());
 
-        // Find and print the largest and smallest quadrilaterals by area
+
         Quadrilateral largestByArea = analyzer.findLargestByArea();
         Quadrilateral smallestByArea = analyzer.findSmallestByArea();
         System.out.println("Largest quadrilateral by area: Type - " + analyzer.getType(largestByArea) + ", Area: " + largestByArea.calculateArea() + ", Perimeter: " + largestByArea.calculatePerimeter());
         System.out.println("Smallest quadrilateral by area: Type - " + analyzer.getType(smallestByArea) + ", Area: " + smallestByArea.calculateArea() + ", Perimeter: " + smallestByArea.calculatePerimeter());
 
-        // Find and print the largest and smallest quadrilaterals by perimeter
+
         Quadrilateral largestByPerimeter = analyzer.findLargestByPerimeter();
         Quadrilateral smallestByPerimeter = analyzer.findSmallestByPerimeter();
         System.out.println("Largest quadrilateral by perimeter: Type - " + analyzer.getType(largestByPerimeter) + ", Area: " + largestByPerimeter.calculateArea() + ", Perimeter: " + largestByPerimeter.calculatePerimeter());

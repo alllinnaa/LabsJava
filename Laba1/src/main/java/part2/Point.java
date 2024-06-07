@@ -45,7 +45,6 @@ public class Point {
         double slope2 = (other.moveY - other.y) / (double)(other.moveX - other.x);
 
         if (slope1 == slope2) {
-            // Parallel lines, no intersection
             return false;
         }
         return true;
