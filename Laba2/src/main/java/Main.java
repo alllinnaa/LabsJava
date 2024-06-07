@@ -1,8 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
-    public class Main {
+
+
+
+public class Main {
         public static void main(String[] args) {
-            Port port = new Port(100, 5, 10);
+
+            Port port = new Port(20, 5, 3);
             List<Ship> ships = new ArrayList<>();
             ships.add(new Ship("Ship1", 10, port, 20, 5));
             ships.add(new Ship("Ship2", 15, port, 16, 8));
@@ -20,7 +24,7 @@ import java.util.List;
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                  Thread.currentThread().interrupt();
                 }
             }
 
@@ -28,7 +32,7 @@ import java.util.List;
                 try {
                     ship.join();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
 

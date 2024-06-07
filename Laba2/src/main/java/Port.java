@@ -2,17 +2,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Port {
-    private int capacity;
+    private final int capacity;
     private int containers;
-    private List<Berth> berths;
+    private final List<Berth> berths;
+
     private static final int MAX_WAIT_TIME = 10000;
 
     public Port(int capacity, int numberOfBerths, int initialContainers) {
         if (capacity <= 0 || numberOfBerths <= 0 || initialContainers < 0) {
-            throw new IllegalArgumentException("Capacity, number of berths, and initial containers must be non-negative values.");
+            System.out.println("Capacity, number of berths, and initial containers must be non-negative values.");
         }
         this.capacity = capacity;
-        this.containers = Math.min(initialContainers, capacity);
+        this.containers = initialContainers;
         this.berths = new ArrayList<>(numberOfBerths);
         for (int i = 0; i < numberOfBerths; i++) {
             berths.add(new Berth());
@@ -27,45 +28,43 @@ public class Port {
         return null;
     }
 
-    public synchronized void loadContainers(int amount, Ship ship) {
-        long startTime = System.currentTimeMillis();
+    public synchronized void loadContainersToPortFromShip(int amount, Ship ship) {
         while (containers + amount > capacity) {
             try {
+                if(System.currentTimeMillis()-ship.getStartTime()> ship.getTotalTimeInPortMillis()) return;
+                System.out.printf("%s has WAIT loadContainersToPortFromShip. Ship:%d. Port:%d. Want:%d \n",ship.getShipName(), ship.getContainers(),containers, amount);
                 wait(MAX_WAIT_TIME);
             } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (System.currentTimeMillis() - startTime > MAX_WAIT_TIME) {
-                System.out.println("Timeout: Could not service " + ship.getShipName() + " for loading containers.");
-                notifyAll();
-                return;
+                Thread.currentThread().interrupt();
+                System.out.println("Error waiting for a ship " + ship.getShipName() + " to load containers at the port");
             }
         }
+        System.out.println(ship.getShipName()+"doing loadContainersToPortFromShip");
         containers += amount;
-        System.out.println(amount + " containers loaded from " + ship.getShipName() + ". Total containers in port: " + containers);
+        ship.setContainers(ship.getContainers() - amount);
+        System.out.println(amount + " containers loaded from " + ship.getShipName() + ". Total containers in port: " + containers + ". Number containers in ship:" + ship.getContainers());
         notifyAll();
     }
 
-    public synchronized void unloadContainers(int amount, Ship ship) {
-        long startTime = System.currentTimeMillis();
+    public synchronized void unloadContainersFromPortToShip(int amount, Ship ship) {
         while (containers - amount < 0) {
             try {
+                if(System.currentTimeMillis()-ship.getStartTime()> ship.getTotalTimeInPortMillis()) return;
+                System.out.printf("%s has WAIT unloadContainersFromPortToShip. Ship:%d. Port:%d. Want:%d \n",ship.getShipName(), ship.getContainers(),containers, amount);
                 wait(MAX_WAIT_TIME);
             } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (System.currentTimeMillis() - startTime > MAX_WAIT_TIME) {
-                System.out.println("Timeout: Could not service " + ship.getShipName() + " for unloading containers.");
-                notifyAll();
-                return;
+                Thread.currentThread().interrupt();
+                System.out.println("Error waiting for a ship " + ship.getShipName() + " to load containers on it");
             }
         }
+        System.out.println(ship.getShipName()+"doing unloadContainersFromPortToShip");
         containers -= amount;
-        System.out.println(amount + " containers unloaded to " + ship.getShipName() + ". Total containers in port: " + containers);
+        ship.setContainers(ship.getContainers() + amount);
+        System.out.println(amount + " containers unloaded to " + ship.getShipName() + ". Total containers in port: " + containers + ". Number containers in ship:" + ship.getContainers());
         notifyAll();
     }
 
-    public synchronized int getContainers() {
+    public int getContainers() {
         return containers;
     }
     public int getNumberOfBerths() {
