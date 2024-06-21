@@ -96,6 +96,7 @@ public class AppForDeliveryFood extends Application {
         deleteOrderButton.setOnAction(e -> deleteOrder(orderTable.getSelectionModel().getSelectedItem()));
 
         new Thread(()->startOrderServer()).start();
+        new Thread(()->checkingAvailableCouriers()).start();
 
         VBox root = new VBox(10, restaurantComboBox, menuListView, itemNameField, itemPriceField, addButton, saveButton, new Label("Couriers"), courierNameField, addCourierButton, removeCourierButton, courierListView, orderTable, deleteOrderButton);
         Scene scene = new Scene(root, 600, 800);
@@ -132,7 +133,21 @@ public class AppForDeliveryFood extends Application {
         }
     }
 
+private void checkingAvailableCouriers(){
+    try (ServerSocket serverSocket = new ServerSocket(9995)) {
+        while (true) {
+            try (Socket socket = serverSocket.accept();
+                 DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
+                 dos.writeBoolean(isFreeCourier());
 
+            } catch (IOException e) {
+                displayAlert("Error connecting client or creating input stream!");
+            }
+        }
+    } catch (IOException e) {
+        displayAlert("Server creation error");
+    }
+}
     private void saveChanges() {
         try (Socket socket = new Socket("localhost", 9993);
              DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
@@ -184,14 +199,23 @@ public class AppForDeliveryFood extends Application {
             couriers.add(new Courier(name));
         }else{
             displayAlert("Courier name must not be empty!");
+            return;
         }
     }
 
     private void removeCourier(Courier courier) {
-        if (courier != null) {
-            couriers.remove(courier);
+        if (courier != null ) {
+            if(courier.isAvailable())
+            {
+                couriers.remove(courier);
+            }else{
+                displayAlert("You cannot remove this courier because he is fulfilling the order");
+                return;
+            }
+
         }else {
             displayAlert("Select the courier you want to delete!");
+            return;
         }
     }
 
@@ -200,7 +224,17 @@ public class AppForDeliveryFood extends Application {
             orders.remove(order);
         }else{
             displayAlert("Select the courier you want to delete!");
+            return;
         }
+    }
+
+    private boolean isFreeCourier() {
+        for (Courier courier : couriers) {
+            if (courier.isAvailable()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Courier assignCourier() {

@@ -99,7 +99,27 @@ public class AppForClient extends Application {
         totalLabel.setText("Total: $" + total);
     }
 
+    private boolean isFreeCourier() {
+        boolean freeCourier=false;
+        try (Socket socket = new Socket("localhost", 9995);
+             DataInputStream dis = new DataInputStream(socket.getInputStream())){
+            freeCourier = dis.readBoolean();
+        } catch (IOException e) {
+            displayAlert("Error when checking available couriers");
+        }
+        return freeCourier;
+    }
+
     private void placeOrder() {
+        if (orderListView.getItems().isEmpty()) {
+            displayAlert("Cannot send an empty order. Please add items to your order.");
+            return;
+        }
+        if(!isFreeCourier()){
+            displayAlert("We cannot fulfill your order because there are no available couriers.");
+            return;
+        }
+
         try (Socket socket = new Socket("localhost", 9994);
              DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
             dos.writeInt(client.getId());
