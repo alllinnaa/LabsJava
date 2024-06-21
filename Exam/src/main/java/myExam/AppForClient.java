@@ -53,11 +53,17 @@ public class AppForClient extends Application {
         stage.show();
     }
 
-    private void getRestaurants () {
+    private void getRestaurants() {
         try (ServerSocket serverSocket = new ServerSocket(9993)) {
             while (true) {
                 try (Socket socket = serverSocket.accept();
                      DataInputStream dis = new DataInputStream(socket.getInputStream())) {
+
+                    restaurants.clear();
+                    menuListView.getItems().clear();
+                    orderListView.getItems().clear();
+                    totalLabel.setText("Total: $0.00");
+
                     String restaurantName;
                     while (!(restaurantName = dis.readUTF()).equals("END_OF_DATA")) {
                         Restaurant restaurant = new Restaurant(restaurantName);
@@ -68,15 +74,16 @@ public class AppForClient extends Application {
                         }
                         restaurants.add(restaurant);
                     }
+                    updateRestaurantComboBox();
                 } catch (IOException e) {
                     displayAlert("Connection error with food delivery app during restaurant transfers");
                 }
-                updateRestaurantComboBox();
             }
         } catch (IOException e) {
             displayAlert("Error creating server while transferring restaurants");
         }
     }
+
 
     private void updateRestaurantComboBox() {
         restaurantComboBox.getItems().setAll(restaurants);
