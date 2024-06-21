@@ -3,7 +3,7 @@ package myExam;
 import java.util.Random;
 
 public class Client {
-    private int id;
+    private final int id;
 
     public Client() {
         this.id = new Random().nextInt(256);

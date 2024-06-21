@@ -1,7 +1,7 @@
 package myExam;
 
 public class Courier {
-    private String name;
+    private final String name;
     private boolean isAvailable;
 
     public Courier(String name) {

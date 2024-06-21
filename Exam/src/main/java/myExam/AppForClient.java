@@ -21,37 +21,13 @@ public class AppForClient extends Application {
     private ListView<MenuItem> menuListView;
     private ListView<MenuItem> orderListView;
     private Label totalLabel;
-    private Label clientIdLabel;
 
     @Override
     public void start(Stage stage) throws Exception {
         client = new Client();
         restaurants = new ArrayList<>();
 
-        new Thread(() -> {
-            try (ServerSocket serverSocket = new ServerSocket(9993)) {
-                while (true) {
-                    try (Socket socket = serverSocket.accept();
-                         DataInputStream dis = new DataInputStream(socket.getInputStream())) {
-                        String restaurantName;
-                        while (!(restaurantName = dis.readUTF()).equals("END_OF_DATA")) {
-                            Restaurant restaurant = new Restaurant(restaurantName);
-                            String itemName;
-                            while (!(itemName = dis.readUTF()).equals("END_OF_MENU")) {
-                                double price = dis.readDouble();
-                                restaurant.addMenuItem(new MenuItem(itemName, price));
-                            }
-                            restaurants.add(restaurant);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    updateRestaurantComboBox();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
+        new Thread(() -> getRestaurants()).start();
 
         restaurantComboBox = new ComboBox<>();
         restaurantComboBox.setOnAction(e -> showMenu(restaurantComboBox.getValue()));
@@ -65,16 +41,41 @@ public class AppForClient extends Application {
         Button addButton = new Button("Add to Order");
         addButton.setOnAction(e -> addToOrder());
 
-        Button placeOrderButton = new Button("Place Order");
-        placeOrderButton.setOnAction(e -> placeOrder());
+        Button makeOrderButton = new Button("Make Order");
+        makeOrderButton.setOnAction(e -> placeOrder());
 
-        clientIdLabel = new Label("Client ID: " + client.getId());
+        Label clientIdLabel = new Label("Client ID: " + client.getId());
 
-        VBox root = new VBox(10, clientIdLabel, restaurantComboBox, menuListView, addButton, orderListView, totalLabel, placeOrderButton);
+        VBox root = new VBox(10, clientIdLabel, restaurantComboBox, menuListView, addButton, orderListView, totalLabel, makeOrderButton);
         Scene scene = new Scene(root, 400, 600);
         stage.setScene(scene);
         stage.setTitle("Food Ordering App");
         stage.show();
+    }
+
+    private void getRestaurants () {
+        try (ServerSocket serverSocket = new ServerSocket(9993)) {
+            while (true) {
+                try (Socket socket = serverSocket.accept();
+                     DataInputStream dis = new DataInputStream(socket.getInputStream())) {
+                    String restaurantName;
+                    while (!(restaurantName = dis.readUTF()).equals("END_OF_DATA")) {
+                        Restaurant restaurant = new Restaurant(restaurantName);
+                        String itemName;
+                        while (!(itemName = dis.readUTF()).equals("END_OF_MENU")) {
+                            double price = dis.readDouble();
+                            restaurant.addMenuItem(new MenuItem(itemName, price));
+                        }
+                        restaurants.add(restaurant);
+                    }
+                } catch (IOException e) {
+                    displayAlert("Connection error with food delivery app during restaurant transfers");
+                }
+                updateRestaurantComboBox();
+            }
+        } catch (IOException e) {
+            displayAlert("Error creating server while transferring restaurants");
+        }
     }
 
     private void updateRestaurantComboBox() {
@@ -91,7 +92,10 @@ public class AppForClient extends Application {
     }
 
     private void updateTotal() {
-        double total = orderListView.getItems().stream().mapToDouble(MenuItem::getPrice).sum();
+        double total = 0.0;
+        for (MenuItem item : orderListView.getItems()) {
+            total += item.getPrice();
+        }
         totalLabel.setText("Total: $" + total);
     }
 
@@ -105,10 +109,18 @@ public class AppForClient extends Application {
             }
             dos.writeUTF("END_OF_ORDER");
         } catch (IOException e) {
-            e.printStackTrace();
+            displayAlert("Connection error when creating an order");
         }
         orderListView.getItems().clear();
         totalLabel.setText("Total: $0.00");
+    }
+
+    private void displayAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("AppForClient");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {

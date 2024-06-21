@@ -3,11 +3,11 @@ package myExam;
 import javafx.beans.property.*;
 
 public class Order {
-    private StringProperty customer;
-    private StringProperty foodOrdered;
-    private DoubleProperty totalCost;
-    private StringProperty courier;
-    private StringProperty status;
+    private final StringProperty customer;
+    private final StringProperty foodOrdered;
+    private final DoubleProperty totalCost;
+    private final StringProperty courier;
+    private final StringProperty status;
 
     public Order(String customer, String foodOrdered, double totalCost, String courier, String status) {
         this.customer = new SimpleStringProperty(customer);

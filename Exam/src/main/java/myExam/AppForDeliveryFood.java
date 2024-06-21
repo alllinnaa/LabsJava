@@ -30,7 +30,6 @@ public class AppForDeliveryFood extends Application {
         orders = FXCollections.observableArrayList();
         couriers = FXCollections.observableArrayList();
 
-        // Sample data
         Restaurant r1 = new Restaurant("Restaurant 1");
         r1.addMenuItem(new MenuItem("Pizza", 8.99));
         r1.addMenuItem(new MenuItem("Pasta", 7.99));
@@ -59,12 +58,11 @@ public class AppForDeliveryFood extends Application {
         itemPriceField.setPromptText("Item Price");
 
         Button addButton = new Button("Add Item");
-        addButton.setOnAction(e -> addItem(itemNameField.getText(), Double.parseDouble(itemPriceField.getText())));
+        addButton.setOnAction(e -> addItem(itemNameField.getText(), itemPriceField.getText()));
 
         Button saveButton = new Button("Save Changes");
         saveButton.setOnAction(e -> saveChanges());
 
-        // Courier management
         courierListView = new ListView<>(couriers);
         TextField courierNameField = new TextField();
         courierNameField.setPromptText("Courier Name");
@@ -75,7 +73,6 @@ public class AppForDeliveryFood extends Application {
         Button removeCourierButton = new Button("Remove Courier");
         removeCourierButton.setOnAction(e -> removeCourier(courierListView.getSelectionModel().getSelectedItem()));
 
-        // Order Table setup
         orderTable = new TableView<>();
         TableColumn<Order, String> customerColumn = new TableColumn<>("Customer");
         customerColumn.setCellValueFactory(data -> data.getValue().customerProperty());
@@ -98,8 +95,7 @@ public class AppForDeliveryFood extends Application {
         Button deleteOrderButton = new Button("Delete Order");
         deleteOrderButton.setOnAction(e -> deleteOrder(orderTable.getSelectionModel().getSelectedItem()));
 
-        // Start server to listen for client orders
-        new Thread(this::startOrderServer).start();
+        new Thread(()->startOrderServer()).start();
 
         VBox root = new VBox(10, restaurantComboBox, menuListView, itemNameField, itemPriceField, addButton, saveButton, new Label("Couriers"), courierNameField, addCourierButton, removeCourierButton, courierListView, orderTable, deleteOrderButton);
         Scene scene = new Scene(root, 600, 800);
@@ -113,13 +109,29 @@ public class AppForDeliveryFood extends Application {
         menuListView.getItems().setAll(restaurant.getMenuItems());
     }
 
-    private void addItem(String name, double price) {
+    private void addItem(String name, String priceStr) {
         if (selectedRestaurant != null) {
+            if (name.isEmpty()) {
+                displayAlert("Name cannot be empty!");
+                return;
+            }
+
+            double price;
+            try {
+                price = Double.parseDouble(priceStr);
+            } catch (NumberFormatException e) {
+                displayAlert("Price must be a valid number!");
+                return;
+            }
+
             MenuItem newItem = new MenuItem(name, price);
             selectedRestaurant.addMenuItem(newItem);
             menuListView.getItems().add(newItem);
+        } else {
+            displayAlert("Select the restaurant where you want to add dishes!");
         }
     }
+
 
     private void saveChanges() {
         try (Socket socket = new Socket("localhost", 9993);
@@ -134,7 +146,7 @@ public class AppForDeliveryFood extends Application {
             }
             dos.writeUTF("END_OF_DATA");
         } catch (IOException e) {
-            e.printStackTrace();
+           displayAlert("Error connecting to the client when transferring restaurants!");
         }
     }
 
@@ -159,29 +171,35 @@ public class AppForDeliveryFood extends Application {
                     orders.add(order);
                     new Thread(() -> processOrder(order, courier)).start();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    displayAlert("Error connecting client or creating input stream!");
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            displayAlert("Server creation error");
         }
     }
 
     private void addCourier(String name) {
         if (name != null && !name.isEmpty()) {
             couriers.add(new Courier(name));
+        }else{
+            displayAlert("Courier name must not be empty!");
         }
     }
 
     private void removeCourier(Courier courier) {
         if (courier != null) {
             couriers.remove(courier);
+        }else {
+            displayAlert("Select the courier you want to delete!");
         }
     }
 
     private void deleteOrder(Order order) {
         if (order != null) {
             orders.remove(order);
+        }else{
+            displayAlert("Select the courier you want to delete!");
         }
     }
 
@@ -192,18 +210,26 @@ public class AppForDeliveryFood extends Application {
                 return courier;
             }
         }
-        return null; // In case all couriers are busy
+        return null;
     }
 
     private void processOrder(Order order, Courier courier) {
         try {
-            int deliveryTime = new Random().nextInt(5) + 1; // Random time between 1 and 5 minutes
+            int deliveryTime = new Random().nextInt(5) + 1;
             Thread.sleep(deliveryTime * 60000);
             order.setStatus("Completed");
             courier.setAvailable(true);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+           displayAlert("Order fulfillment error");
         }
+    }
+
+    private void displayAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("AppForDeliveryFood");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {
