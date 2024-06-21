@@ -24,11 +24,14 @@ public class AppForDeliveryFood extends Application {
     private ObservableList<Courier> couriers;
     private ListView<Courier> courierListView;
 
-    @Override
-    public void start(Stage stage) {
+    public AppForDeliveryFood() {
         restaurants = new ArrayList<>();
         orders = FXCollections.observableArrayList();
         couriers = FXCollections.observableArrayList();
+    }
+
+    @Override
+    public void start(Stage stage) {
 
         Restaurant r1 = new Restaurant("Restaurant 1");
         r1.addMenuItem(new MenuItem("Pizza", 8.99));
@@ -209,7 +212,7 @@ public class AppForDeliveryFood extends Application {
         }
     }
 
-    private void addCourier(String name) {
+    public void addCourier(String name) {
         if (name != null && !name.isEmpty()) {
             couriers.add(new Courier(name));
         }else{
@@ -240,7 +243,7 @@ public class AppForDeliveryFood extends Application {
     }
 
 
-    private boolean isFreeCourier() {
+    public boolean isFreeCourier() {
         for (Courier courier : couriers) {
             if (courier.isAvailable()) {
                 return true;
@@ -276,6 +279,9 @@ public class AppForDeliveryFood extends Application {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    public ObservableList<Courier> getCouriers() {
+        return couriers;
     }
 
     public static void main(String[] args) {
