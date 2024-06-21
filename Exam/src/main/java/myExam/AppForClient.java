@@ -1,6 +1,7 @@
 package myExam;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -59,10 +60,7 @@ public class AppForClient extends Application {
                 try (Socket socket = serverSocket.accept();
                      DataInputStream dis = new DataInputStream(socket.getInputStream())) {
 
-                    restaurants.clear();
-                    menuListView.getItems().clear();
-                    orderListView.getItems().clear();
-                    totalLabel.setText("Total: $0.00");
+                    List<Restaurant> updatedRestaurants = new ArrayList<>();
 
                     String restaurantName;
                     while (!(restaurantName = dis.readUTF()).equals("END_OF_DATA")) {
@@ -72,9 +70,18 @@ public class AppForClient extends Application {
                             double price = dis.readDouble();
                             restaurant.addMenuItem(new MenuItem(itemName, price));
                         }
-                        restaurants.add(restaurant);
+                        updatedRestaurants.add(restaurant);
                     }
-                    updateRestaurantComboBox();
+
+                    Platform.runLater(() -> {
+                        restaurants.clear();
+                        restaurants.addAll(updatedRestaurants);
+                        updateRestaurantComboBox();
+                        menuListView.getItems().clear();
+                        orderListView.getItems().clear();
+                        totalLabel.setText("Total: $0.00");
+                    });
+
                 } catch (IOException e) {
                     displayAlert("Connection error with food delivery app during restaurant transfers");
                 }
@@ -83,6 +90,7 @@ public class AppForClient extends Application {
             displayAlert("Error creating server while transferring restaurants");
         }
     }
+
 
 
     private void updateRestaurantComboBox() {

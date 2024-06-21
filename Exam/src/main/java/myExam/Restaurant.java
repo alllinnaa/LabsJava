@@ -24,6 +24,11 @@ public class Restaurant {
         menuItems.add(item);
     }
 
+    public void removeMenuItem(MenuItem item) {
+        menuItems.remove(item);
+    }
+
+
     public double calculateTotalPrice() {
         double totalPrice = 0.0;
         for (MenuItem item : menuItems) {

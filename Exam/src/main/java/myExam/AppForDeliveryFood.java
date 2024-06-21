@@ -60,6 +60,10 @@ public class AppForDeliveryFood extends Application {
         Button addButton = new Button("Add Item");
         addButton.setOnAction(e -> addItem(itemNameField.getText(), itemPriceField.getText()));
 
+        Button deleteMenuItemButton = new Button("Delete Item");
+        deleteMenuItemButton.setOnAction(e -> deleteItem(menuListView.getSelectionModel().getSelectedItem()));
+
+
         Button saveButton = new Button("Save Changes");
         saveButton.setOnAction(e -> saveChanges());
 
@@ -98,7 +102,8 @@ public class AppForDeliveryFood extends Application {
         new Thread(()->startOrderServer()).start();
         new Thread(()->checkingAvailableCouriers()).start();
 
-        VBox root = new VBox(10, restaurantComboBox, menuListView, itemNameField, itemPriceField, addButton, saveButton, new Label("Couriers"), courierNameField, addCourierButton, removeCourierButton, courierListView, orderTable, deleteOrderButton);
+        VBox root = new VBox(10, restaurantComboBox, menuListView, deleteMenuItemButton, itemNameField, itemPriceField, addButton, saveButton, new Label("Couriers"), courierNameField, addCourierButton, removeCourierButton, courierListView, orderTable, deleteOrderButton);
+
         Scene scene = new Scene(root, 600, 800);
         stage.setScene(scene);
         stage.setTitle("Menu Management and Order Processing");
@@ -132,6 +137,17 @@ public class AppForDeliveryFood extends Application {
             displayAlert("Select the restaurant where you want to add dishes!");
         }
     }
+
+    private void deleteItem(MenuItem item) {
+        if (selectedRestaurant != null && item != null) {
+            selectedRestaurant.removeMenuItem(item);
+            menuListView.getItems().remove(item);
+            //saveChanges();
+        }else {
+            displayAlert("Select the restaurant where you want to delete dishes!");
+        }
+    }
+
 
     private void checkingAvailableCouriers(){
         try (ServerSocket serverSocket = new ServerSocket(9995)) {
@@ -227,6 +243,7 @@ public class AppForDeliveryFood extends Application {
             return;
         }
     }
+
 
     private boolean isFreeCourier() {
         for (Courier courier : couriers) {
