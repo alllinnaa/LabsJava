@@ -45,11 +45,11 @@ public class AppForDeliveryFood extends Application {
         r3.addMenuItem(new MenuItem("Fries", 2.99));
         restaurants.add(r3);
 
+        menuListView = new ListView<>();
+
         ComboBox<Restaurant> restaurantComboBox = new ComboBox<>();
         restaurantComboBox.getItems().addAll(restaurants);
         restaurantComboBox.setOnAction(e -> showMenu(restaurantComboBox.getValue()));
-
-        menuListView = new ListView<>();
 
         TextField itemNameField = new TextField();
         itemNameField.setPromptText("Item Name");
@@ -142,7 +142,6 @@ public class AppForDeliveryFood extends Application {
         if (selectedRestaurant != null && item != null) {
             selectedRestaurant.removeMenuItem(item);
             menuListView.getItems().remove(item);
-            //saveChanges();
         }else {
             displayAlert("Select the restaurant where you want to delete dishes!");
         }
@@ -215,7 +214,6 @@ public class AppForDeliveryFood extends Application {
             couriers.add(new Courier(name));
         }else{
             displayAlert("Courier name must not be empty!");
-            return;
         }
     }
 
@@ -226,12 +224,10 @@ public class AppForDeliveryFood extends Application {
                 couriers.remove(courier);
             }else{
                 displayAlert("You cannot remove this courier because he is fulfilling the order");
-                return;
             }
 
         }else {
             displayAlert("Select the courier you want to delete!");
-            return;
         }
     }
 
@@ -240,7 +236,6 @@ public class AppForDeliveryFood extends Application {
             orders.remove(order);
         }else{
             displayAlert("Select the courier you want to delete!");
-            return;
         }
     }
 
@@ -267,7 +262,7 @@ public class AppForDeliveryFood extends Application {
     private void processOrder(Order order, Courier courier) {
         try {
             int deliveryTime = new Random().nextInt(5) + 1;
-            Thread.sleep(deliveryTime * 60000);
+            Thread.sleep(deliveryTime * 6000);
             order.setStatus("Completed");
             courier.setAvailable(true);
         } catch (InterruptedException e) {

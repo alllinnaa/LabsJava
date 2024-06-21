@@ -42,12 +42,16 @@ public class AppForClient extends Application {
         Button addButton = new Button("Add to Order");
         addButton.setOnAction(e -> addToOrder());
 
+        Button removeButton = new Button("Remove from Order");
+        removeButton.setOnAction(e -> removeFromOrder());
+
         Button makeOrderButton = new Button("Make Order");
         makeOrderButton.setOnAction(e -> placeOrder());
 
         Label clientIdLabel = new Label("Client ID: " + client.getId());
 
-        VBox root = new VBox(10, clientIdLabel, restaurantComboBox, menuListView, addButton, orderListView, totalLabel, makeOrderButton);
+        VBox root = new VBox(10, clientIdLabel, restaurantComboBox, menuListView, addButton,
+                orderListView, removeButton, totalLabel, makeOrderButton);
         Scene scene = new Scene(root, 400, 600);
         stage.setScene(scene);
         stage.setTitle("Food Ordering App");
@@ -103,6 +107,10 @@ public class AppForClient extends Application {
 
     private void addToOrder() {
         orderListView.getItems().addAll(menuListView.getSelectionModel().getSelectedItems());
+        updateTotal();
+    }
+    private void removeFromOrder() {
+        orderListView.getItems().removeAll(orderListView.getSelectionModel().getSelectedItems());
         updateTotal();
     }
 
