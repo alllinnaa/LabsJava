@@ -23,6 +23,14 @@ public class Restaurant {
     public void addMenuItem(MenuItem item) {
         menuItems.add(item);
     }
+
+    public double calculateTotalPrice() {
+        double totalPrice = 0.0;
+        for (MenuItem item : menuItems) {
+            totalPrice += item.getPrice();
+        }
+        return totalPrice;
+    }
     @Override
     public String toString() {
         return name;

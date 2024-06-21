@@ -133,21 +133,21 @@ public class AppForDeliveryFood extends Application {
         }
     }
 
-private void checkingAvailableCouriers(){
-    try (ServerSocket serverSocket = new ServerSocket(9995)) {
-        while (true) {
-            try (Socket socket = serverSocket.accept();
-                 DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
-                 dos.writeBoolean(isFreeCourier());
+    private void checkingAvailableCouriers(){
+        try (ServerSocket serverSocket = new ServerSocket(9995)) {
+            while (true) {
+                try (Socket socket = serverSocket.accept();
+                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
+                    dos.writeBoolean(isFreeCourier());
 
-            } catch (IOException e) {
-                displayAlert("Error connecting client or creating input stream!");
+                } catch (IOException e) {
+                    displayAlert("Error connecting client or creating input stream!");
+                }
             }
+        } catch (IOException e) {
+            displayAlert("Server creation error");
         }
-    } catch (IOException e) {
-        displayAlert("Server creation error");
     }
-}
     private void saveChanges() {
         try (Socket socket = new Socket("localhost", 9993);
              DataOutputStream dos = new DataOutputStream(socket.getOutputStream())) {
@@ -161,7 +161,7 @@ private void checkingAvailableCouriers(){
             }
             dos.writeUTF("END_OF_DATA");
         } catch (IOException e) {
-           displayAlert("Error connecting to the client when transferring restaurants!");
+            displayAlert("Error connecting to the client when transferring restaurants!");
         }
     }
 
@@ -254,7 +254,7 @@ private void checkingAvailableCouriers(){
             order.setStatus("Completed");
             courier.setAvailable(true);
         } catch (InterruptedException e) {
-           displayAlert("Order fulfillment error");
+            displayAlert("Order fulfillment error");
         }
     }
 
